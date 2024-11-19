@@ -21,7 +21,9 @@ def create_database(db_name, user, password, host, port):
         )
         conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         cursor = conn.cursor()
+        # Drop the database if it already exists
         cursor.execute(f"DROP DATABASE IF EXISTS {db_name};")
+        # Create the database
         cursor.execute(f"CREATE DATABASE {db_name};")
         cursor.close()
         conn.close()
@@ -36,6 +38,7 @@ def create_vehicle_table(conn, file_path):
     try:
         cursor = conn.cursor()
 
+        # Parse the SQL file and execute each query
         with open(file_path, 'r') as sql_file:
             sql_script = sql_file.read()
 
@@ -57,6 +60,7 @@ def vin_trigger_function(conn):
     """
     try:
         cursor = conn.cursor()
+        # Create the unique vin trigger function
         cursor.execute("""
             CREATE OR REPLACE FUNCTION vin_case_insensitive()
             RETURNS trigger AS $$
@@ -74,6 +78,7 @@ def vin_trigger_function(conn):
 
 def connect_db():
     try:
+        # Load environment variables from the .env file or use default values
         conn = psycopg2.connect(
             database=os.getenv("DB_NAME", "vehicles"),
             user=os.getenv("DB_USER", "postgres"),
@@ -91,6 +96,7 @@ def init_db():
     """
     Wrapper function to create the database and execute queries.
     """
+    # Load environment variables from the .env file or use default values
     db_name = os.getenv("DB_NAME", "vehicles")
     user = os.getenv("DB_USER", "postgres")
     password = os.getenv("DB_PASSWORD", "password")
@@ -101,6 +107,7 @@ def init_db():
     sql_file = os.path.join(base_dir, "create.sql")
     csv_file = os.path.join(base_dir, "sample_vehicles.csv")
 
+    # Create the database
     create_database(db_name, user, password, host, port)
 
     try:
@@ -112,8 +119,11 @@ def init_db():
             port=port
         )
 
+        # Create the unique vin trigger function
         vin_trigger_function(conn)
+        # Create the Vehicle table
         create_vehicle_table(conn, sql_file)
+        # Load mock data into the Vehicle table
         load_csv_to_database(conn, csv_file)
         conn.close()
 

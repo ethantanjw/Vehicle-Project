@@ -37,6 +37,7 @@ def init_routes(app):
         try:
             conn = connect_db()
             cursor = conn.cursor()
+            # Get all vehicles from the database
             cursor.execute("SELECT * FROM Vehicle;")
             vehicles = cursor.fetchall()
             response_data = {"Vehicles": vehicles}
@@ -59,6 +60,7 @@ def init_routes(app):
         try:
             conn = connect_db()
             cursor = conn.cursor()
+            # Get the vehicle from the database based on the VIN
             cursor.execute("SELECT * FROM Vehicle WHERE vin = %s;", (vin,))
             vehicle = cursor.fetchone()
             response_data = {"Vehicle": vehicle}
@@ -86,6 +88,7 @@ def init_routes(app):
 
             data = request.get_json()
 
+            # Data fields that the user must provide
             required_fields = [
                 'vin', 'manufacturer_name', 'horse_power', 'model_name',
                 'model_year', 'purchase_price', 'fuel_type'
@@ -97,16 +100,29 @@ def init_routes(app):
                     "missing_fields": missing_fields
                 }), 422
 
-            if 'model_year' in data and not isinstance(data['model_year'], int):
+            # Invalid data type checks
+            if 'manufacturer_name' in data and not isinstance(data['manufacturer_name'], str):
                 return jsonify({
-                    "error": "Invalid data type for model_year",
-                    "details": "model_year must be an integer"
+                    "error": "Invalid data type for manufacturer_name",
+                    "details": "manufacturer_name must be a string"
                 }), 422
 
             if 'horse_power' in data and not isinstance(data['horse_power'], int):
                 return jsonify({
                     "error": "Invalid data type for horse_power",
                     "details": "horse_power must be an integer"
+                }), 422
+
+            if 'model_name' in data and not isinstance(data['model_name'], str):
+                return jsonify({
+                    "error": "Invalid data type for model_name",
+                    "details": "model_name must be a string"
+                }), 422
+
+            if 'model_year' in data and not isinstance(data['model_year'], int):
+                return jsonify({
+                    "error": "Invalid data type for model_year",
+                    "details": "model_year must be an integer"
                 }), 422
 
             if 'purchase_price' in data:
@@ -118,9 +134,16 @@ def init_routes(app):
                         "details": "purchase_price must be a float represented as a string or the number itself"
                     }), 422
 
+            if 'fuel_type' in data and not isinstance(data['fuel_type'], str):
+                return jsonify({
+                    "error": "Invalid data type for fuel_type",
+                    "details": "fuel_type must be a string"
+                }), 422
+
 
             conn = connect_db()
             cursor = conn.cursor()
+            # Insert the new vehicle into the database
             cursor.execute("""
                 INSERT INTO Vehicle (vin, manufacturer_name, description, horse_power, model_name, model_year, purchase_price, fuel_type)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
@@ -134,6 +157,7 @@ def init_routes(app):
                 data['purchase_price'],
                 data['fuel_type']
             ))
+            # Get the newly created vehicle from the database and return it
             cursor.execute("SELECT * FROM Vehicle WHERE vin = %s;", (data['vin'],))
             new_vehicle = cursor.fetchone()
             response_data = {"Vehicle": new_vehicle}
@@ -160,13 +184,34 @@ def init_routes(app):
                 return jsonify({"error": "Request body must be in JSON representation"}), 400
 
             data = request.get_json()
-
             if not data:
                 return jsonify({"error": "No data provided for update"}), 400
-            if 'model_year' in data and not isinstance(data['model_year'], int):
-                return jsonify({"error": "Invalid data type for model_year. Must be an integer."}), 422
+                
+            # Invalid data type checks
+            if 'manufacturer_name' in data and not isinstance(data['manufacturer_name'], str):
+                return jsonify({
+                    "error": "Invalid data type for manufacturer_name",
+                    "details": "manufacturer_name must be a string"
+                }), 422
+
             if 'horse_power' in data and not isinstance(data['horse_power'], int):
-                return jsonify({"error": "Invalid data type for horse_power. Must be an integer."}), 422
+                return jsonify({
+                    "error": "Invalid data type for horse_power",
+                    "details": "horse_power must be an integer"
+                }), 422
+
+            if 'model_name' in data and not isinstance(data['model_name'], str):
+                return jsonify({
+                    "error": "Invalid data type for model_name",
+                    "details": "model_name must be a string"
+                }), 422
+
+            if 'model_year' in data and not isinstance(data['model_year'], int):
+                return jsonify({
+                    "error": "Invalid data type for model_year",
+                    "details": "model_year must be an integer"
+                }), 422
+
             if 'purchase_price' in data:
                 try:
                     data['purchase_price'] = Decimal(data['purchase_price'])
@@ -176,16 +221,25 @@ def init_routes(app):
                         "details": "purchase_price must be a float represented as a string or the number itself"
                     }), 422
 
+            if 'fuel_type' in data and not isinstance(data['fuel_type'], str):
+                return jsonify({
+                    "error": "Invalid data type for fuel_type",
+                    "details": "fuel_type must be a string"
+                }), 422
+
             conn = connect_db()
             cursor = conn.cursor()
+            # Get the updated vehicle from the database
             cursor.execute("SELECT * FROM Vehicle WHERE vin = %s;", (vin,))
             existing_vehicle = cursor.fetchone()
 
+            # Vehicle does not exist
             if not existing_vehicle:
                 cursor.close()
                 conn.close()
                 return jsonify({"error": f"Vehicle not found"}), 404
 
+            # Check if the user provided valid fields for update
             update_fields = []
             update_values = []
             for field in ['manufacturer_name', 'description', 'horse_power', 'model_name', 'model_year', 'purchase_price', 'fuel_type']:
@@ -197,6 +251,7 @@ def init_routes(app):
                 return jsonify({"error": "No valid fields provided for update"}), 422
 
             update_values.append(vin)
+            # Update the vehicle in the database
             cursor.execute(f"""
                 UPDATE Vehicle
                 SET {', '.join(update_fields)}
@@ -226,6 +281,7 @@ def init_routes(app):
         try:
             conn = connect_db()
             cursor = conn.cursor()
+            # Delete the vehicle from the database
             cursor.execute("DELETE FROM Vehicle WHERE vin = %s RETURNING vin;", (vin,))
             deleted_vin = cursor.fetchone()
             conn.commit()
