@@ -1,6 +1,6 @@
 # Vehicle Management Service
 
-This repo conains a Python [Flask](https://flask.palletsprojects.com/en/stable/) web app that interacts with a [PostgreSQL](https://www.postgresql.org/) database using a REST API framework. This repo can be used as a Vehicle Managment Service. 
+This repo contains a Python [Flask](https://flask.palletsprojects.com/en/stable/) web app that interacts with a [PostgreSQL](https://www.postgresql.org/) database using a REST API framework. This repo can be used as a Vehicle Managment Service. 
 
 # Build and run locally
 
