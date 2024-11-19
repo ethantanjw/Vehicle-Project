@@ -34,4 +34,4 @@ pytest tests/test_routes.py                            # You should see the test
 
 Navigate to [http://127.0.0.1:5000/] and you should see a JSON response providing a list of the API routes.
 
-The `/api` directory contains the API routes `/db` and the contains the Database component.
+The `/api` directory contains the API routes and the `/db` directory contains the Database component.
