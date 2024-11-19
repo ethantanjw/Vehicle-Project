@@ -1,0 +1,7 @@
+.app/
+.env
+.pytest_cache/
+__pycache__/
+/venv
+Dockerfile
+docker-compose.yml

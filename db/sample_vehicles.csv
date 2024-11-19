@@ -1,0 +1,6 @@
+vin,manufacturer_name,description,horse_power,model_name,model_year,purchase_price,fuel_type
+test1,Honda,Its a Honda Accord,150,Accord,2020,25000.00,Gasoline
+test2,Toyota,Its a Toyota Camry,187,Camry,2019,32000.50,Gasoline
+test3,Porsche,Its a Porsche 911,175,911,2018,21000.75,Gasoline
+test4,Tesla,Its a Tesla Model S,670,Model S,2021,79999.99,Electric
+test5,Nissan,Its a Nissan Altima,182,Altima,2020,23000.00,Gasoline
